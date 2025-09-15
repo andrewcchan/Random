@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Spaghetti Carbonara",
+    "ingredients": ["spaghetti", "eggs", "parmesan cheese", "pancetta", "black pepper"],
+    "instructions": "1. Cook spaghetti. 2. Fry pancetta. 3. Whisk eggs and cheese. 4. Combine everything."
+  },
+  {
+    "name": "Scrambled Eggs",
+    "ingredients": ["eggs", "butter", "milk", "salt", "pepper"],
+    "instructions": "1. Whisk eggs, milk, salt, and pepper. 2. Melt butter in a pan. 3. Add egg mixture and cook until desired consistency."
+  },
+  {
+    "name": "Pancakes",
+    "ingredients": ["flour", "milk", "egg", "sugar", "baking powder"],
+    "instructions": "1. Mix dry ingredients. 2. Mix wet ingredients. 3. Combine wet and dry ingredients. 4. Cook on a griddle."
+  }
+]
