@@ -1,0 +1,8 @@
+{
+  "butter": ["margarine", "shortening", "coconut oil"],
+  "milk": ["almond milk", "soy milk", "oat milk"],
+  "egg": ["flax egg (1 tbsp ground flaxseed + 3 tbsp water)", "applesauce"],
+  "flour": ["whole wheat flour", "gluten-free flour blend"],
+  "sugar": ["honey", "maple syrup", "agave nectar"],
+  "parmesan cheese": ["pecorino romano", "nutritional yeast"]
+}

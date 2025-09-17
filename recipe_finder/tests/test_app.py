@@ -2,46 +2,70 @@ import unittest
 import sys
 import os
 
-# Add the parent directory to the path so we can import app
+# Add the parent directory to the path so we can import from logic
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app import find_matching_recipes
+from logic import find_recipes_smart
 
-class TestRecipeFinder(unittest.TestCase):
+class TestSmartRecipeFinder(unittest.TestCase):
 
     def setUp(self):
         self.recipes = [
             {
-                "name": "Spaghetti Carbonara",
-                "ingredients": ["spaghetti", "eggs", "parmesan cheese", "pancetta", "black pepper"]
+                "name": "Pancakes",
+                "ingredients": ["flour", "milk", "egg", "sugar"]
             },
             {
-                "name": "Scrambled Eggs",
-                "ingredients": ["eggs", "butter", "milk", "salt", "pepper"]
+                "name": "Omelette",
+                "ingredients": ["egg", "milk", "cheese", "salt", "pepper"]
             }
         ]
+        self.substitutions = {
+            "milk": ["almond milk", "soy milk"],
+            "sugar": ["honey", "maple syrup"]
+        }
 
-    def test_find_one_recipe(self):
-        user_ingredients = ["eggs", "butter", "milk", "salt", "pepper"]
-        matches = find_matching_recipes(self.recipes, user_ingredients)
-        self.assertEqual(len(matches), 1)
-        self.assertEqual(matches[0]['name'], 'Scrambled Eggs')
+    def test_exact_match(self):
+        user_ingredients = ["flour", "milk", "egg", "sugar"]
+        result = find_recipes_smart(self.recipes, user_ingredients, self.substitutions)
+        self.assertEqual(len(result['exact_matches']), 1)
+        self.assertEqual(result['exact_matches'][0]['name'], 'Pancakes')
+        self.assertEqual(len(result['partial_matches']), 0)
 
-    def test_find_no_recipes(self):
-        user_ingredients = ["flour", "sugar"]
-        matches = find_matching_recipes(self.recipes, user_ingredients)
-        self.assertEqual(len(matches), 0)
+    def test_partial_match_with_substitution(self):
+        user_ingredients = ["flour", "egg", "sugar"] # Missing milk
+        result = find_recipes_smart(self.recipes, user_ingredients, self.substitutions)
+        self.assertEqual(len(result['exact_matches']), 0)
+        self.assertEqual(len(result['partial_matches']), 1)
 
-    def test_find_with_extra_ingredients(self):
-        user_ingredients = ["eggs", "butter", "milk", "salt", "pepper", "bacon"]
-        matches = find_matching_recipes(self.recipes, user_ingredients)
-        self.assertEqual(len(matches), 1)
-        self.assertEqual(matches[0]['name'], 'Scrambled Eggs')
+        partial_match = result['partial_matches'][0]
+        self.assertEqual(partial_match['name'], 'Pancakes')
+        self.assertEqual(partial_match['missing_ingredients'], ['milk'])
+        self.assertIn('milk', partial_match['substitutions'])
+        self.assertEqual(partial_match['substitutions']['milk'], ["almond milk", "soy milk"])
 
-    def test_find_with_missing_ingredients(self):
-        user_ingredients = ["eggs", "butter", "milk"]
-        matches = find_matching_recipes(self.recipes, user_ingredients)
-        self.assertEqual(len(matches), 0)
+    def test_partial_match_without_substitution(self):
+        user_ingredients = ["milk", "egg", "sugar"] # Missing flour
+        result = find_recipes_smart(self.recipes, user_ingredients, self.substitutions)
+        self.assertEqual(len(result['exact_matches']), 0)
+        self.assertEqual(len(result['partial_matches']), 1)
+
+        partial_match = result['partial_matches'][0]
+        self.assertEqual(partial_match['name'], 'Pancakes')
+        self.assertEqual(partial_match['missing_ingredients'], ['flour'])
+        self.assertNotIn('flour', partial_match['substitutions'])
+
+    def test_no_match(self):
+        user_ingredients = ["beef", "carrots"]
+        result = find_recipes_smart(self.recipes, user_ingredients, self.substitutions)
+        self.assertEqual(len(result['exact_matches']), 0)
+        self.assertEqual(len(result['partial_matches']), 0)
+
+    def test_match_with_extra_ingredients(self):
+        user_ingredients = ["flour", "milk", "egg", "sugar", "baking powder"]
+        result = find_recipes_smart(self.recipes, user_ingredients, self.substitutions)
+        self.assertEqual(len(result['exact_matches']), 1)
+        self.assertEqual(result['exact_matches'][0]['name'], 'Pancakes')
 
 if __name__ == '__main__':
     unittest.main()
