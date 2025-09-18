@@ -10,6 +10,14 @@ def load_substitutions(filepath):
     with open(filepath, 'r') as f:
         return json.load(f)
 
+def get_all_ingredients(recipes):
+    """Extracts a sorted list of unique ingredients from all recipes."""
+    all_ingredients = set()
+    for recipe in recipes:
+        for ingredient in recipe['ingredients']:
+            all_ingredients.add(ingredient.strip().lower())
+    return sorted(list(all_ingredients))
+
 def find_recipes_smart(recipes, user_ingredients, substitutions, missing_threshold=2):
     """
     Finds recipes that can be made with the given ingredients, allowing for a

@@ -4,7 +4,7 @@ import os
 
 # Add the recipe_finder directory to the path to import logic
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'recipe_finder')))
-from logic import load_recipes, load_substitutions, find_recipes_smart
+from logic import load_recipes, load_substitutions, find_recipes_smart, get_all_ingredients
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -18,22 +18,24 @@ st.set_page_config(
 def get_data():
     recipes = load_recipes('recipe_finder/recipes.json')
     substitutions = load_substitutions('recipe_finder/substitutions.json')
-    return recipes, substitutions
+    all_ingredients = get_all_ingredients(recipes)
+    return recipes, substitutions, all_ingredients
 
-recipes, substitutions = get_data()
+recipes, substitutions, all_ingredients = get_data()
 
 # --- UI Layout ---
 st.title("🍳 Recipe Finder")
-st.write("Find recipes based on the ingredients you have at home. You can also find recipes you're close to making!")
+st.write("Find recipes by selecting the ingredients you have at home.")
 
-ingredients_input = st.text_area(
-    "Enter your ingredients, separated by commas:",
-    placeholder="e.g., flour, sugar, eggs"
+selected_ingredients = st.multiselect(
+    "Select your ingredients from the list below:",
+    options=all_ingredients,
+    placeholder="Choose your ingredients"
 )
 
 if st.button("Find Recipes"):
-    if ingredients_input:
-        user_ingredients = [item.strip().lower() for item in ingredients_input.split(',')]
+    if selected_ingredients:
+        user_ingredients = [item.lower() for item in selected_ingredients]
 
         found_recipes = find_recipes_smart(recipes, user_ingredients, substitutions)
 
@@ -58,4 +60,4 @@ if st.button("Find Recipes"):
                             for item, subs in recipe['substitutions'].items():
                                 st.success(f"**For {item}, you could use:** {', '.join(subs)}")
     else:
-        st.error("Please enter some ingredients.")
+        st.error("Please select some ingredients.")
