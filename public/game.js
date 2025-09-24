@@ -202,3 +202,30 @@ window.addEventListener('click', (e) => {
         speed: 7
     });
 });
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+canvas.addEventListener('touchstart', (e) => {
+    if (isGameOver) return;
+    e.preventDefault();
+    touchStartX = e.touches[0].clientX;
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    if (isGameOver) return;
+    e.preventDefault();
+    touchEndX = e.changedTouches[0].clientX;
+    handleSwipe();
+}, { passive: false });
+
+function handleSwipe() {
+    const swipeDistance = touchEndX - touchStartX;
+    if (Math.abs(swipeDistance) > 50) { // Swipe threshold
+        if (swipeDistance > 0) {
+            player.currentLane = 'right';
+        } else {
+            player.currentLane = 'left';
+        }
+    }
+}
